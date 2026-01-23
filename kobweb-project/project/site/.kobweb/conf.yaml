@@ -1,0 +1,14 @@
+site:
+  title: "com.example.project"
+
+server:
+  files:
+    dev:
+      contentRoot: "build/processedResources/js/main/public"
+      script: "build/kotlin-webpack/js/developmentExecutable/project.js"
+      api: "build/libs/project.jar"
+    prod:
+      script: "build/kotlin-webpack/js/productionExecutable/project.js"
+      siteRoot: ".kobweb/site"
+
+  port: 8080
