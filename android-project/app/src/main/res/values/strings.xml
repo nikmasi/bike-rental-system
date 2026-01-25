@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BicycleRentalApp</string>
+    <string name="database">BicycleRental.db</string>
+</resources>
