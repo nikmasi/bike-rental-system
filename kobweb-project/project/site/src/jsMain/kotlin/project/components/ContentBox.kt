@@ -9,6 +9,7 @@ import com.varabyte.kobweb.compose.foundation.layout.ColumnScope
 import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.attrsModifier
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.color
@@ -16,9 +17,9 @@ import com.varabyte.kobweb.compose.ui.modifiers.cursor
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxHeight
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
-import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
+import com.varabyte.kobweb.compose.ui.modifiers.zIndex
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
 import kotlinx.browser.window
@@ -55,15 +56,16 @@ fun ContentBox(
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(20.px),
+                .padding(20.px)
+                .zIndex(10),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.px)
         ) {
+            // LOGOUT
             Span(
                 attrs = Modifier
                     .cursor(Cursor.Pointer)
                     .color(Color.white)
-                    .fontSize(14.px)
                     .toAttrs {
                         onClick {
                             window.localStorage.clear()
@@ -79,8 +81,14 @@ fun ContentBox(
                     .size(36.px)
                     .borderRadius(50.percent)
                     .backgroundColor(rgb(30, 30, 30))
-                    .color(Color.white),
-                contentAlignment = Alignment.Center
+                    .cursor(Cursor.Pointer)
+                    .attrsModifier {
+                        onClick {
+                            window.alert("Radi!")
+                            window.location.href = "/change-password"
+                        }
+                    },
+                contentAlignment = Alignment.Center,
             ) {
                 Text("A")
             }

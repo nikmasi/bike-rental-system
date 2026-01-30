@@ -89,10 +89,22 @@ object Storage {
         }
     }
 
-    // Dodavanje novog korisnika
     fun registerUser(username: String, password: String, name: String, loggedIn: Boolean) {
         users.add(User(username, password, name, loggedIn))
         saveUsers(users)
+    }
+
+    fun changePasswordAdmin(password: String, oldPassword: String):ChangePasswordResult{
+        val users = loadUsers().toMutableList()
+        val u =users.find { it.username == "admin" && it.password == oldPassword }
+        if (u!= null){
+            u?.password = password
+            saveUsers(users)
+            return ChangePasswordResult.Success
+        }
+        else{
+            return ChangePasswordResult.WrongPassword
+        }
     }
 
     fun registerBike(bike: Bike): NewBikeResult {

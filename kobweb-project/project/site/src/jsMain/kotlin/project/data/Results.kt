@@ -9,6 +9,11 @@ sealed class LoginResult {
     object PasswordEmpty : LoginResult()
 }
 
+sealed class ChangePasswordResult {
+    object Success : ChangePasswordResult()
+    object WrongPassword : ChangePasswordResult()
+}
+
 sealed class NewBikeResult {
     object Success : NewBikeResult()
     object InvalidPrice : NewBikeResult()

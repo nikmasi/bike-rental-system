@@ -12,6 +12,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.textDecorationLine
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
+import com.varabyte.kobweb.navigation.Anchor
+import com.varabyte.kobweb.silk.components.navigation.Link
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.rgb
@@ -20,7 +22,7 @@ import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun SidebarLink(text: String, href: String) {
-    A(
+    Anchor(
         href = href,
         attrs = Modifier
             .fontSize(14.px)
@@ -32,7 +34,7 @@ fun SidebarLink(text: String, href: String) {
                     cursor(Cursor.Pointer)
                 }
             }
-            .toAttrs {}
+            .toAttrs()
     ) {
         Text(text)
     }
