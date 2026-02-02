@@ -145,10 +145,6 @@ fun SignUpScreen(
             )
         }
     }
-
-
-
-
 }
 
 @Preview(showBackground = true)

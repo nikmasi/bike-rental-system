@@ -27,50 +27,42 @@ object PersistenceModule{
 
     @Provides
     @Singleton
-    fun provideAppDatabase(application: Application, bikeDaoProvider: Provider<BikeDao>): AppDatabase {
-        return Room
-            .databaseBuilder(
-                application,
-                AppDatabase::class.java,
-                application.getString(R.string.database)
-            )
+    fun provideAppDatabase(application: Application): AppDatabase {
+        lateinit var database: AppDatabase
+
+        database = Room.databaseBuilder(
+            application,
+            AppDatabase::class.java,
+            application.getString(R.string.database)
+        )
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
-                    // for adding
                     CoroutineScope(Dispatchers.IO).launch {
-                        val bikeDao = bikeDaoProvider.get()
-                        bikeDao.insertBike(Bike(1,"electrical","Block 45, New Belgrade",80.00,"photo1"))
-                        bikeDao.insertBike(Bike(2,"electrical","Block 34, New Belgrade",80.00,"photo1"))
+                        val bikeDao = database.bikeDao()
+                        bikeDao.insertBike(Bike(1, "electrical", "Block 45, New Belgrade", 80.00, "photo1"))
+                        bikeDao.insertBike(Bike(2, "electrical", "Block 34, New Belgrade", 80.00, "photo1"))
                     }
                 }
             })
             .fallbackToDestructiveMigration()
             .build()
+
+        return database
     }
+    @Provides
+    @Singleton
+    fun provideUserDao(appDatabase: AppDatabase): UserDao = appDatabase.userDao()
 
     @Provides
     @Singleton
-    fun provideUserDao(appDatabase: AppDatabase): UserDao{
-        return appDatabase.userDao()
-    }
+    fun provideBikeDao(appDatabase: AppDatabase): BikeDao = appDatabase.bikeDao()
 
     @Provides
     @Singleton
-    fun provideBikeDao(appDatabase: AppDatabase): BikeDao{
-        return appDatabase.bikeDao()
-    }
+    fun provideBikeRentalDao(appDatabase: AppDatabase): BikeRentalDao = appDatabase.bikeRentalDao()
 
     @Provides
     @Singleton
-    fun provideBikeRentalDao(appDatabase: AppDatabase): BikeRentalDao{
-        return appDatabase.bikeRentalDao()
-    }
-
-
-    @Provides
-    @Singleton
-    fun provideBikeReturnReportDao(appDatabase: AppDatabase): BikeReturnReportDao{
-        return appDatabase.bikeReturnReport()
-    }
+    fun provideBikeReturnReportDao(appDatabase: AppDatabase): BikeReturnReportDao= appDatabase.bikeReturnReport()
 }

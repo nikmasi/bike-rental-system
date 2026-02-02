@@ -15,7 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.bicyclerentalapp.ui.MapScreen
+import com.example.bicyclerentalapp.ui.map.MapScreen
 import com.example.bicyclerentalapp.ui.profile.ProfileScreen
 import com.example.bicyclerentalapp.ui.auth.LoginScreen
 import com.example.bicyclerentalapp.ui.SplashScreen
@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import com.example.bicyclerentalapp.ui.HomeScreen
 import com.example.bicyclerentalapp.ui.rental.RentABikeScreen
 import com.example.bicyclerentalapp.ui.profile.ChangePasswordScreen
+import com.example.bicyclerentalapp.ui.profile.EditProfileScreen
 import com.example.bicyclerentalapp.ui.rental.ActiveRentalScreen
 import com.example.bicyclerentalapp.ui.rental.FinishRentalScreen
 import com.example.bicyclerentalapp.ui.rental.ProblemScreen
@@ -97,6 +98,7 @@ fun BicycleRentalMainScreen(){
             composable(NavScreen.ProfileScreen.route){
                 ProfileScreen(viewModel = authViewModel,{},
                     {navController.navigate(NavScreen.ChangePasswordScreen.route)},
+                    {navController.navigate(NavScreen.EditProfileScreen.route)},
                     {navController.navigate(NavScreen.RentalHistoryScreen.route)}
                 )
             }
@@ -105,8 +107,11 @@ fun BicycleRentalMainScreen(){
                     onOK = { navController.navigate(NavScreen.ProfileScreen.route) }
                 )
             }
+            composable(NavScreen.EditProfileScreen.route){
+                EditProfileScreen(authViewModel)
+            }
             composable(NavScreen.MapScreen.route){
-                MapScreen()
+                MapScreen(onRent = {navController.navigate(NavScreen)})
             }
             composable(NavScreen.RentABikeScreen.route){
                 RentABikeScreen()
@@ -150,6 +155,8 @@ sealed class NavScreen(
         showBottomBar = true
     )
     object ChangePasswordScreen: NavScreen(route = "ChangePasswordScreen")
+
+    object EditProfileScreen: NavScreen(route = "EditProfileScreen")
 
     object MapScreen: NavScreen(
         route = "MapScreen",

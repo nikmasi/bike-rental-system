@@ -23,6 +23,7 @@ fun ProfileScreen(
     viewModel: AuthViewModel,
     onLogout: () -> Unit,
     onChangePassword: () -> Unit,
+    onEditProfile:() -> Unit,
     onRentalHistory: () -> Unit
 ) {
     val user by viewModel.logInResult.collectAsState()
@@ -40,7 +41,7 @@ fun ProfileScreen(
             imageVector = Icons.Default.Person,
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.padding(bottom = 24.dp).size(80.dp)
+            modifier = Modifier.padding(bottom = 14.dp).size(70.dp)
         )
 
         user?.let { currentUser ->
@@ -56,10 +57,12 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         // logout button
-        AppButton(onLogout, "Logout")
+        AppButton(onLogout, "Logout", height = 40.dp)
         // change password button
-        AppButton(onChangePassword, "Change password")
+        AppButton(onChangePassword, "Change password", height = 40.dp)
+        // edit profile
+        AppButton(onEditProfile, "Edit profile", height = 40.dp)
         // my rentals button
-        AppButton(onRentalHistory, "My rentals")
+        AppButton(onRentalHistory, "My rentals", height = 40.dp)
     }
 }

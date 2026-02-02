@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bicyclerentalapp.ui.theme.ButtonColor
@@ -18,14 +19,15 @@ import com.example.bicyclerentalapp.ui.theme.ButtonColor
 fun AppButton(
     onClick: () -> Unit,
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    height: Dp = 50.dp
 ){
     Button(
         onClick = onClick,
         modifier = modifier
             .padding(top=16.dp)
             .fillMaxWidth()
-            .height(50.dp),
+            .height(height),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = ButtonColor),
     ) {
