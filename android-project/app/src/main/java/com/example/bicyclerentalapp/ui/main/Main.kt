@@ -1,5 +1,13 @@
 package com.example.bicyclerentalapp.ui.main
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -8,6 +16,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,12 +33,19 @@ import com.example.bicyclerentalapp.ui.auth.AuthViewModel
 import com.example.bicyclerentalapp.ui.auth.SignUpScreen
 import com.example.bicyclerentalapp.ui.components.bars.BicycleBottomBar
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.example.bicyclerentalapp.ui.HomeScreen
 import com.example.bicyclerentalapp.ui.rental.RentABikeScreen
 import com.example.bicyclerentalapp.ui.profile.ChangePasswordScreen
 import com.example.bicyclerentalapp.ui.profile.EditProfileScreen
 import com.example.bicyclerentalapp.ui.rental.ActiveRentalScreen
+import com.example.bicyclerentalapp.ui.rental.FinishParkingRentalScreen
 import com.example.bicyclerentalapp.ui.rental.FinishRentalScreen
+import com.example.bicyclerentalapp.ui.rental.ProblemQuestionScreen
 import com.example.bicyclerentalapp.ui.rental.ProblemScreen
 import com.example.bicyclerentalapp.ui.rental.RentalHistoryScreen
 
@@ -40,8 +56,37 @@ fun BicycleRentalMainScreen(){
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
-
     val currentScreen = NavScreen.fromRoute(currentRoute)
+    val context = LocalContext.current
+
+    var hasCamPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context,
+                Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {granted ->
+            hasCamPermission = granted
+        }
+    )
+    LaunchedEffect(key1 = true) {
+        launcher.launch(Manifest.permission.CAMERA)
+    }
+
+    // controller for camera
+    val controller = remember {
+        LifecycleCameraController(context).apply {
+            setEnabledUseCases(
+                CameraController.IMAGE_CAPTURE or CameraController.IMAGE_ANALYSIS
+            )
+        }
+    }
+
+    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     Scaffold(
         topBar = {
@@ -111,16 +156,42 @@ fun BicycleRentalMainScreen(){
                 EditProfileScreen(authViewModel)
             }
             composable(NavScreen.MapScreen.route){
-                MapScreen(onRent = {navController.navigate(NavScreen)})
+                MapScreen(onRent = {navController.navigate(NavScreen.RentABikeScreen.route)})
             }
             composable(NavScreen.RentABikeScreen.route){
-                RentABikeScreen()
+                RentABikeScreen(onQrCodeScanned = { result ->
+                    Toast.makeText(context, "Code: $result", Toast.LENGTH_LONG).show()
+                    navController.navigate(NavScreen.ActiveRentalScreen.route)
+                })
             }
             composable(NavScreen.ActiveRentalScreen.route){
                 ActiveRentalScreen(onFinishClick = {navController.navigate(NavScreen.FinishRentalScreen.route)})
             }
-            composable(NavScreen.ActiveRentalScreen.route){
-                FinishRentalScreen(onFinishClick = {navController.navigate(NavScreen.ProblemScreen.route)})
+            composable(NavScreen.FinishRentalScreen.route){
+                FinishRentalScreen(
+                    controller = controller,
+                    onFinishClick = { bitmap ->
+                        capturedBitmap = bitmap
+                        Toast.makeText(context, "Photo captured!", Toast.LENGTH_SHORT).show()
+
+                        navController.navigate(NavScreen.FinishParkingRentalScreen.route)
+                    },
+                    context = context
+                )
+            }
+            composable(NavScreen.FinishParkingRentalScreen.route){
+                FinishParkingRentalScreen(
+                    bitmap = capturedBitmap,
+                    onConfirm = {
+                        navController.navigate(NavScreen.ProblemQuestionScreen.route)
+                    }
+                )
+            }
+            composable(NavScreen.ProblemQuestionScreen.route){
+                ProblemQuestionScreen(
+                    onConf = { navController.navigate(NavScreen.ProblemScreen.route) },
+                    onDeny = { navController.navigate(NavScreen.Home.route)}
+                )
             }
             composable(NavScreen.ProblemScreen.route){
                 ProblemScreen()
@@ -173,6 +244,10 @@ sealed class NavScreen(
     )
 
     object FinishRentalScreen: NavScreen("FinishRentalScreen")
+
+    object FinishParkingRentalScreen: NavScreen("FinishParkingRentalScreen")
+
+    object ProblemQuestionScreen: NavScreen("ProblemQuestionScreen")
 
     object ProblemScreen: NavScreen("ProblemScreen")
 

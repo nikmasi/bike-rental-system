@@ -92,4 +92,7 @@ dependencies {
     // osmdroid
     implementation("org.osmdroid:osmdroid-android:6.1.14")
 
+    // qr code - zxing
+    implementation("com.google.zxing:core:3.3.3")
+
 }

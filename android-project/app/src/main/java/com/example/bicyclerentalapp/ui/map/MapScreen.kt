@@ -143,7 +143,8 @@ fun BikeDetailCard(
     modifier: Modifier = Modifier,
     stationName: String,
     onClose: () -> Unit,
-    onRent: () -> Unit
+    onRent: () -> Unit,
+    buttonCond: Boolean = true
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -228,8 +229,10 @@ fun BikeDetailCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Rent button
-            AppButton(onClick = onRent, text= "Rent now", height = 40.dp)
+            if (buttonCond){
+                // Rent button
+                AppButton(onClick = onRent, text= "Rent now", height = 40.dp)
+            }
         }
     }
 }

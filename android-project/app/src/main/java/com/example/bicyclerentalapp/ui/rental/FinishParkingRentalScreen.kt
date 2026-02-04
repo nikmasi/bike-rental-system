@@ -1,10 +1,7 @@
 package com.example.bicyclerentalapp.ui.rental
 
-import android.content.Context
 import android.graphics.Bitmap
-import androidx.camera.core.ImageCapture
-import androidx.camera.view.LifecycleCameraController
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,51 +18,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import com.example.bicyclerentalapp.ui.components.AppButton
 import com.example.bicyclerentalapp.ui.components.wrapper.CardsWrapper
 import com.example.bicyclerentalapp.ui.components.wrapper.ScreenWrapper
-import com.example.bicyclerentalapp.ui.rental.components.CameraPreview
-import com.example.bicyclerentalapp.ui.rental.components.takePhoto
 
 @Composable
-fun FinishRentalScreen(
-    controller: LifecycleCameraController,
-    //onFinishClick: () -> Unit = {},
-    onFinishClick: (Bitmap) -> Unit = {},
-    context: Context
+fun FinishParkingRentalScreen(
+    bitmap: Bitmap?, onConfirm: () -> Unit
 ) {
     ScreenWrapper(title = "Finish Rental") {
-        CardsWrapper(onClick = {}, buttonText = "Finish", buttonClick = {
-                // Pozivamo tvoju funkciju za slikanje
-
-        }, buttonActive = true,
+        CardsWrapper(onClick = {}, buttonText = "Finish", buttonClick = onConfirm
+        , buttonActive = true,
             topContent = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                ) {
-                    CameraPreview(
-                        controller = controller
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Captured Bike",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp)
+                            .clip(RoundedCornerShape(16.dp))
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                AppButton(onClick = {
-                    takePhoto(
-                        controller = controller,
-                        context = context,
-                        onPhotoTaken = { bitmap ->
-                            onFinishClick(bitmap)
-                        }
-                    )
-                },text="Take a photo")
             },
             bottomContent = {
                 Text(
