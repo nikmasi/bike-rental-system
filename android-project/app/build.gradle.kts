@@ -95,4 +95,7 @@ dependencies {
     // qr code - zxing
     implementation("com.google.zxing:core:3.3.3")
 
+    // location services
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+
 }

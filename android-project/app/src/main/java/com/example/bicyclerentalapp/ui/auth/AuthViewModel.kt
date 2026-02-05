@@ -70,8 +70,6 @@ class AuthViewModel @Inject constructor(
                     }
             }
 
-
-
             is UserIntent.SignUp -> {
                 when {
                     intent.username.isBlank() ||
@@ -109,10 +107,16 @@ class AuthViewModel @Inject constructor(
                     }
                 }
             }
+            is UserIntent.EditProfile -> {
+                authRepository.editProfile(intent.user)
+                    .onEach { updatedUser ->
+                        _logInResult.value = updatedUser
+                        _errorState.value = null
+                    }
+            }
             else -> authRepository.currentUser()
 
             //UserIntent.LoadCurrentUser -> authRepository.currentUser()
-
         }
     }.stateIn(
         scope = viewModelScope,
@@ -137,6 +141,8 @@ sealed class UserIntent {
         val email: String
     ): UserIntent()
     object LoadCurrentUser: UserIntent()
+
+    data class EditProfile(val user: User): UserIntent()
 }
 
 sealed class AuthError {

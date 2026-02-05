@@ -34,8 +34,9 @@ fun AuthTextField(
         modifier = Modifier
             .padding(bottom = 16.dp)
             .fillMaxWidth()
-            .height(55.dp)
+            .height(61.dp)
             .background(FieldBackground, RoundedCornerShape(20.dp)),
+        label = { Text(placeholder) },
         placeholder = { Text(placeholder, color = Color.Gray) },
         singleLine = true,
         isError = isError,

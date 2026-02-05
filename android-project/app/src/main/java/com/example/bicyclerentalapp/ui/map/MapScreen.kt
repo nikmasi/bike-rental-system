@@ -1,5 +1,8 @@
 package com.example.bicyclerentalapp.ui.map
 
+import android.content.Context
+import android.content.Intent
+import android.location.Geocoder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Close
@@ -28,19 +33,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.bicyclerentalapp.ui.components.AppButton
+import com.example.bicyclerentalapp.ui.rental.components.DefaultLocationClient
+import com.example.bicyclerentalapp.ui.rental.components.LocationService
 import com.example.bicyclerentalapp.ui.theme.BackgroundBlack
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import java.util.Locale
 
 @Composable
 fun MapScreen(onRent: () -> Unit) {
@@ -49,6 +64,19 @@ fun MapScreen(onRent: () -> Unit) {
     var parkingChecked by remember { mutableStateOf(false) }
 
     var selectedStation by remember { mutableStateOf<String?>(null) }
+
+    // marker user
+    val userLocationMarker = remember { mutableStateOf<Marker?>(null) }
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val locationClient = remember {
+        DefaultLocationClient(
+            context,
+            LocationServices.getFusedLocationProviderClient(context)
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -64,16 +92,23 @@ fun MapScreen(onRent: () -> Unit) {
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             BasicTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
                 modifier = Modifier.weight(1f),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = {
+                    performSearch(searchText, context, mapReference, scope)
+                }),
                 decorationBox = { innerTextField ->
                     if (searchText.isEmpty()) Text("Location", color = Color.Gray)
                     innerTextField()
                 }
             )
-            Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray)
+            IconButton(onClick = { performSearch(searchText, context, mapReference, scope) }) {
+                Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray)
+            }
         }
 
         Box(
@@ -97,8 +132,30 @@ fun MapScreen(onRent: () -> Unit) {
             // current location
             FloatingActionButton(
                 onClick = {
-                    val bgd = GeoPoint(44.7866, 20.4489)
-                    mapReference?.controller?.animateTo(bgd)
+                    // start foreground service
+                    Intent(context, LocationService::class.java).apply {
+                        action = LocationService.ACTION_START
+                        context.startService(this)
+                    }
+
+                    // current location and move on map
+                    scope.launch {
+                        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+                        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                            location?.let {
+                                val geoPoint = GeoPoint(it.latitude, it.longitude)
+                                mapReference?.controller?.animateTo(geoPoint, 18.0, 500L)
+                                updateUserMarker(mapReference, geoPoint, userLocationMarker, context)
+                            }
+                        }
+
+                        locationClient
+                            .getLocationUpdates(1000L)
+                            .collect { location ->
+                                val geoPoint = GeoPoint(location.latitude, location.longitude)
+                                updateUserMarker(mapReference, geoPoint, userLocationMarker, context)
+                            }
+                    }
                 },
                 containerColor = Color.White,
                 modifier = Modifier
@@ -243,7 +300,7 @@ fun setupMap(map: MapView, onMarkerClick: (String) -> Unit) {
     map.controller.setCenter(startPoint)
     map.controller.setZoom(15.0)
 
-    val marker = org.osmdroid.views.overlay.Marker(map)
+    val marker = Marker(map)
     marker.position = startPoint
     marker.title = "Central Parking"
     marker.setOnMarkerClickListener { m, _ ->
@@ -252,4 +309,57 @@ fun setupMap(map: MapView, onMarkerClick: (String) -> Unit) {
     }
     map.overlays.add(marker)
     map.invalidate()
+}
+
+fun updateUserMarker(
+    map: MapView?,
+    point: GeoPoint,
+    markerState: MutableState<Marker?>,
+    context: Context
+) {
+    map?.let {
+        if (markerState.value == null) {
+            val marker = Marker(it)
+            marker.title = "Your current location"
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            markerState.value = marker
+            it.overlays.add(marker)
+        }
+        markerState.value?.position = point
+        it.invalidate()
+    }
+}
+
+fun performSearch(
+    query: String,
+    context: Context,
+    map: MapView?,
+    scope: kotlinx.coroutines.CoroutineScope
+) {
+    if (query.isBlank() || map == null) return
+
+    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            // get first founded address
+            val addresses = geocoder.getFromLocationName(query, 1)
+
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                val targetPoint = GeoPoint(address.latitude, address.longitude)
+
+                launch(kotlinx.coroutines.Dispatchers.Main) {
+                    map.controller.animateTo(targetPoint, 17.0, 1000L)
+
+                    val searchMarker = Marker(map)
+                    searchMarker.position = targetPoint
+                    searchMarker.title = query
+                    map.overlays.add(searchMarker)
+                    map.invalidate()
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("SearchError", "Error: ${e.message}")
+        }
+    }
 }

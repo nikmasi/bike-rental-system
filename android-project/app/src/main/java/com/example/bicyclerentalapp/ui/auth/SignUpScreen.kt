@@ -8,7 +8,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -18,8 +17,6 @@ import com.example.bicyclerentalapp.ui.components.AppButton
 import com.example.bicyclerentalapp.ui.components.AuthTextField
 import com.example.bicyclerentalapp.ui.components.Title
 import com.example.bicyclerentalapp.ui.theme.BackgroundBlack
-
-private val BorderColor = Color.White
 
 @Composable
 fun SignUpScreen(
@@ -35,8 +32,6 @@ fun SignUpScreen(
     val isEmailError = error == AuthError.InvalidEmail
     val isPasswordError = error == AuthError.WeakPassword
     val isEmptyError = error == AuthError.EmptyFields
-
-
 
     LaunchedEffect(signUpResult) {
         signUpResult?.let {
@@ -65,11 +60,9 @@ fun SignUpScreen(
                 AuthError.InvalidCredentials ->
                     "Wrong username or password"
             }
-
             snackbarHostState.showSnackbar(message)
         }
     }
-
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -83,7 +76,6 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(60.dp))
-
 
             Title(text = "SignUp")
 

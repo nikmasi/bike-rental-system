@@ -44,7 +44,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Spacer(modifier = Modifier.height(60.dp)) // nije na samom vrhu
+        Spacer(modifier = Modifier.height(60.dp))
 
         Title(text = "Login")
 

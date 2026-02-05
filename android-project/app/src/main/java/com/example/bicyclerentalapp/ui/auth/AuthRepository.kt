@@ -51,4 +51,15 @@ class AuthRepository @Inject constructor(
         emit(user)
     }.flowOn(Dispatchers.IO)
 
+    @WorkerThread
+    fun editProfile(user: User) = flow {
+        // if password length is not 64 then is plain text
+        val finalUser = if (user.password.length != 64) {
+            user.copy(password = hashPassword(user.password))
+        } else {
+            user
+        }
+        userDao.editProfileUser(finalUser)
+        emit(finalUser)
+    }.flowOn(Dispatchers.IO)
 }

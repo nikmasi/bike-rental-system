@@ -67,15 +67,43 @@ fun BicycleRentalMainScreen(){
         )
     }
 
+//    val launcher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.RequestPermission(),
+//        onResult = {granted ->
+//            hasCamPermission = granted
+//        }
+//    )
+//    LaunchedEffect(key1 = true) {
+//        launcher.launch(Manifest.permission.CAMERA)
+//    }
+    // 1. Definiši listu dozvola
+    val permissionsToRequest = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+// 2. Proveri da li su već odobrene
+    var permissionsGranted by remember {
+        mutableStateOf(
+            permissionsToRequest.all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            }
+        )
+    }
+
+// 3. Launcher za više dozvola odjednom
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = {granted ->
-            hasCamPermission = granted
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            permissionsGranted = permissions.values.all { it }
         }
     )
+
     LaunchedEffect(key1 = true) {
-        launcher.launch(Manifest.permission.CAMERA)
+        launcher.launch(permissionsToRequest)
     }
+
 
     // controller for camera
     val controller = remember {
@@ -149,11 +177,13 @@ fun BicycleRentalMainScreen(){
             }
             composable(NavScreen.ChangePasswordScreen.route){
                 ChangePasswordScreen(
+                    viewModel = authViewModel,
                     onOK = { navController.navigate(NavScreen.ProfileScreen.route) }
                 )
             }
             composable(NavScreen.EditProfileScreen.route){
-                EditProfileScreen(authViewModel)
+                EditProfileScreen(viewModel = authViewModel,
+                    onClick = {navController.navigate(NavScreen.ProfileScreen.route)})
             }
             composable(NavScreen.MapScreen.route){
                 MapScreen(onRent = {navController.navigate(NavScreen.RentABikeScreen.route)})
