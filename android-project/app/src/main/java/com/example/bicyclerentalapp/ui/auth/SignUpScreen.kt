@@ -25,7 +25,6 @@ fun SignUpScreen(
     onSignUp: () -> Unit
 ) {
     val signUpResult by viewModel.signUpResult.collectAsState()
-    val state by viewModel.uiState.collectAsState()
 
     val error by viewModel.errorState.collectAsState()
 

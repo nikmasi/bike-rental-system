@@ -3,6 +3,7 @@ package com.example.bicyclerentalapp.ui.main
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,7 +39,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.bicyclerentalapp.ui.HomeScreen
+import com.example.bicyclerentalapp.ui.map.MapViewModel
 import com.example.bicyclerentalapp.ui.rental.RentABikeScreen
 import com.example.bicyclerentalapp.ui.profile.ChangePasswordScreen
 import com.example.bicyclerentalapp.ui.profile.EditProfileScreen
@@ -48,11 +52,14 @@ import com.example.bicyclerentalapp.ui.rental.FinishRentalScreen
 import com.example.bicyclerentalapp.ui.rental.ProblemQuestionScreen
 import com.example.bicyclerentalapp.ui.rental.ProblemScreen
 import com.example.bicyclerentalapp.ui.rental.RentalHistoryScreen
+import com.example.bicyclerentalapp.ui.rental.RentalViewModel
 
 @Composable
 fun BicycleRentalMainScreen(){
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
+    val mapViewModel: MapViewModel = hiltViewModel()
+    val rentalViewModel: RentalViewModel = hiltViewModel()
 
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
@@ -76,14 +83,12 @@ fun BicycleRentalMainScreen(){
 //    LaunchedEffect(key1 = true) {
 //        launcher.launch(Manifest.permission.CAMERA)
 //    }
-    // 1. Definiši listu dozvola
     val permissionsToRequest = arrayOf(
         Manifest.permission.CAMERA,
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-// 2. Proveri da li su već odobrene
     var permissionsGranted by remember {
         mutableStateOf(
             permissionsToRequest.all {
@@ -92,7 +97,6 @@ fun BicycleRentalMainScreen(){
         )
     }
 
-// 3. Launcher za više dozvola odjednom
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
@@ -103,7 +107,6 @@ fun BicycleRentalMainScreen(){
     LaunchedEffect(key1 = true) {
         launcher.launch(permissionsToRequest)
     }
-
 
     // controller for camera
     val controller = remember {
@@ -186,16 +189,35 @@ fun BicycleRentalMainScreen(){
                     onClick = {navController.navigate(NavScreen.ProfileScreen.route)})
             }
             composable(NavScreen.MapScreen.route){
-                MapScreen(onRent = {navController.navigate(NavScreen.RentABikeScreen.route)})
+
+                MapScreen(
+                    onRent = { station, isElectro ->
+                        navController.navigate("RentABikeScreen/${station.idStation}/$isElectro")
+                    },
+                    viewModel = mapViewModel,
+                    rentalViewModel = rentalViewModel
+                )
             }
-            composable(NavScreen.RentABikeScreen.route){
-                RentABikeScreen(onQrCodeScanned = { result ->
-                    Toast.makeText(context, "Code: $result", Toast.LENGTH_LONG).show()
+            composable(NavScreen.RentABikeScreen.route,
+                arguments = listOf(
+                    navArgument("stationId") { type = NavType.IntType },
+                    navArgument("isElectro") { type = NavType.BoolType }
+                )
+            ) { backStackEntry ->
+                val stationId = backStackEntry.arguments?.getInt("stationId") ?: 0
+                val isElectro = backStackEntry.arguments?.getBoolean("isElectro") ?: false
+
+                RentABikeScreen(stationId, isElectro, onQrCodeScanned = { result ->
+                    Toast.makeText(context, "Code: $result", Toast.LENGTH_SHORT).show()
+                    rentalViewModel.confirmRental(stationId,isElectro,result)
                     navController.navigate(NavScreen.ActiveRentalScreen.route)
-                })
+                }, rentalViewModel = rentalViewModel)
             }
             composable(NavScreen.ActiveRentalScreen.route){
-                ActiveRentalScreen(onFinishClick = {navController.navigate(NavScreen.FinishRentalScreen.route)})
+                ActiveRentalScreen(
+                    onFinishClick = {navController.navigate(NavScreen.FinishRentalScreen.route)},
+                    rentalViewModel = rentalViewModel
+                )
             }
             composable(NavScreen.FinishRentalScreen.route){
                 FinishRentalScreen(
@@ -266,7 +288,7 @@ sealed class NavScreen(
         showBottomBar = true
     )
 
-    object RentABikeScreen: NavScreen("RentABikeScreen", showBottomBar = true)
+    object RentABikeScreen: NavScreen("RentABikeScreen/{stationId}/{isElectro}", showBottomBar = true)
     object ActiveRentalScreen: NavScreen(
         "ActiveRentalScreen",
         label = "Active Rental",

@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -16,8 +15,6 @@ import com.example.bicyclerentalapp.ui.components.AppButton
 import com.example.bicyclerentalapp.ui.components.AuthTextField
 import com.example.bicyclerentalapp.ui.components.Title
 import com.example.bicyclerentalapp.ui.theme.BackgroundBlack
-
-private val BorderColor = Color.White
 
 @Composable
 fun LoginScreen(

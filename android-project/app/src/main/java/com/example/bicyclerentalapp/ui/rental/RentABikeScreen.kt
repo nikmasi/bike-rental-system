@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,15 +35,15 @@ import com.example.bicyclerentalapp.ui.rental.components.QrCodeScannerScreen
 
 @Composable
 fun RentABikeScreen(
-    bikeName: String = "Mountain Pro X",
-    price: String = "5€/hr",
-    distance: String = "150m",
-    location: String = "Trg Slobode 5",
+    stationId: Int,
+    isElectro: Boolean,
     onScanClick: () -> Unit = {},
-    onQrCodeScanned: (String) -> Unit
+    onQrCodeScanned: (String) -> Unit,
+    rentalViewModel: RentalViewModel
 ) {
-    ScreenWrapper(title = "Rent a Bike") {
+    val station by rentalViewModel.selectedStation.collectAsState()
 
+    ScreenWrapper(title = "Rent a Bike") {
         CardsWrapper(
             onClick = onScanClick,
             topContent = {
@@ -85,7 +86,7 @@ fun RentABikeScreen(
                                 modifier = Modifier.padding(top = 4.dp)
                             ) {
                                 Text(
-                                    text = "ELECTRO",
+                                    text = if(isElectro) "ELECTRO" else "CLASSIC",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color(0xFF00E676)
@@ -122,7 +123,7 @@ fun RentABikeScreen(
                                     }
                                 }
                                 Text(
-                                    text = "Central Station",
+                                    text = station?.name ?: "Error",
                                     modifier = Modifier.padding(start = 8.dp),
                                     color = Color.LightGray,
                                     style = MaterialTheme.typography.bodyMedium
@@ -130,24 +131,11 @@ fun RentABikeScreen(
                             }
 
                             Column {
+
                                 //Text("Price", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
-                                Text("250 RSD/h", color = Color.White, style = MaterialTheme.typography.titleSmall)
+                                Text(if(isElectro) station?.electroPrice.toString()
+                                else station?.classicPrice.toString() + " euro/h", color = Color.White, style = MaterialTheme.typography.titleSmall)
                             }
-
-                            Text(text = "1000m away", color= Color.White, style = MaterialTheme.typography.bodySmall)
-                        }
-
-                        Box(modifier = Modifier
-                            .size(120.dp, 80.dp)
-                            .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.DirectionsBike,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(48.dp)
-                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))

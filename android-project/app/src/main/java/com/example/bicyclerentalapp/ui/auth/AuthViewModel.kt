@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bicyclerentalapp.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +28,6 @@ class AuthViewModel @Inject constructor(
     private val _errorState = MutableStateFlow<AuthError?>(null)
     val errorState = _errorState
 
-
     private fun isValidEmail(email: String): Boolean {
         return email.contains("@") && email.contains(".")
     }
@@ -38,6 +38,7 @@ class AuthViewModel @Inject constructor(
         return password.length >= 8 && hasUpper && hasDigit
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val uiState = intents.flatMapLatest { intent ->
         when(intent){
             is UserIntent.LoadCurrentUser -> {
@@ -79,7 +80,7 @@ class AuthViewModel @Inject constructor(
                             intent.phone.isBlank() ||
                             intent.email.isBlank() -> {
                         _errorState.value = AuthError.EmptyFields
-                        MutableSharedFlow() // prekida flow
+                        MutableSharedFlow() // stop flow
                     }
 
                     !isValidEmail(intent.email) -> {
@@ -141,7 +142,6 @@ sealed class UserIntent {
         val email: String
     ): UserIntent()
     object LoadCurrentUser: UserIntent()
-
     data class EditProfile(val user: User): UserIntent()
 }
 

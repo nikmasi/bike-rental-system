@@ -19,12 +19,6 @@ class AuthRepository @Inject constructor(
     }
 
     @WorkerThread
-    fun getUserByUsername(username: String?) = flow {
-        val user = userDao.getUserByUsername(username)
-        emit(user)
-    }.flowOn(Dispatchers.IO)
-
-    @WorkerThread
     fun login(username: String, password: String) = flow {
         val hashed = hashPassword(password)
         val user = userDao.login(username, hashed)

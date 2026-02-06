@@ -71,3 +71,42 @@ Open the application in your browser at:
 ```bash
 http://localhost:8080
 ```
+
+# Bike Rental Mobile App (Android)
+
+The user-facing mobile application for the Bike Rental System.
+
+## Features
+
+User functionalities
+
+- Interactive Map: Locate nearby bike stations.
+- QR Code Scanner
+- Active Ride Tracking: Real-time dashboard showing ride duration, bike details, and current station.
+- Station Details: View pricing (classic vs. electro) and capacity for each location.
+
+## Tech Stack & Libraries
+
+Core
+
+- Kotlin
+- Jetpack Compose
+
+Architecture & DI
+
+- MVVM Architecture
+- Hilt 
+- Navigation Compose
+
+Storage
+
+- Room 
+- ViewModels
+
+## Screenshots
+
+## How to Run
+
+1. Clone the repository
+2. Open in Android Studio
+3. Run the App
