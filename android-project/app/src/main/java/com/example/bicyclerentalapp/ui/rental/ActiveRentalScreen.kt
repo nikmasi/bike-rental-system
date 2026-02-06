@@ -1,27 +1,26 @@
 package com.example.bicyclerentalapp.ui.rental
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import com.example.bicyclerentalapp.ui.components.wrapper.CardsWrapper
 import com.example.bicyclerentalapp.ui.components.wrapper.ScreenWrapper
+import com.example.bicyclerentalapp.ui.rental.components.BottomInfoCard
 
 @Composable
 fun ActiveRentalScreen(
     onFinishClick: () -> Unit = {},
     rentalViewModel: RentalViewModel
 ) {
-    val station by rentalViewModel.selectedStation.collectAsState()
     val bike by rentalViewModel.selectedBike.collectAsState()
 
     val seconds by rentalViewModel.secondsActive.collectAsState()
+
+    val station by rentalViewModel.selectedStation.collectAsState()
 
     ScreenWrapper(title = "Active Rental") {
         CardsWrapper(onClick = {}, buttonText = "Finish", buttonClick = {
@@ -40,12 +39,7 @@ fun ActiveRentalScreen(
                 Text(text = "Bike ID: #${bike?.idBike}",color = Color.White)
             },
             bottomContent = {
-                Text(
-                    text = "#B214",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
+                BottomInfoCard(bike?.isElectro == true,station)
             }
         )
     }

@@ -40,6 +40,12 @@ class MapViewModel @Inject constructor(
             intents.emit(intent)
         }
     }
+
+    fun calculateDistance(userLat: Double, userLon: Double, stationLat: Double, stationLon: Double): Float {
+        val results = FloatArray(1)
+        android.location.Location.distanceBetween(userLat, userLon, stationLat, stationLon, results)
+        return results[0] // return m
+    }
 }
 
 sealed class StationIntent {

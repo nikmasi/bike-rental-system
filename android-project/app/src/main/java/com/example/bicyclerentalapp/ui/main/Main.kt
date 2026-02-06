@@ -3,7 +3,6 @@ package com.example.bicyclerentalapp.ui.main
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,11 +36,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.bicyclerentalapp.ui.HomeScreen
+import com.example.bicyclerentalapp.ui.components.SystemBarsColor
+import com.example.bicyclerentalapp.ui.home.HomeScreen
 import com.example.bicyclerentalapp.ui.map.MapViewModel
 import com.example.bicyclerentalapp.ui.rental.RentABikeScreen
 import com.example.bicyclerentalapp.ui.profile.ChangePasswordScreen
@@ -119,10 +120,9 @@ fun BicycleRentalMainScreen(){
 
     var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
+    SystemBarsColor(Color.Black, darkTheme = true)
+
     Scaffold(
-        topBar = {
-            // TopAppBar()
-        },
         bottomBar = {
             if (currentScreen?.showBottomBar == true) {
                 BicycleBottomBar(navController)
@@ -168,8 +168,11 @@ fun BicycleRentalMainScreen(){
                 )
             }
             composable(NavScreen.Home.route){
-                HomeScreen(viewModel = authViewModel, onBikeClick = {navController.navigate(
-                    NavScreen.RentABikeScreen.route)})
+                HomeScreen(
+                    viewModel = authViewModel,
+                    mapViewModel = mapViewModel,
+                    onBikeClick = {navController.navigate(NavScreen.RentABikeScreen.route)}
+                )
             }
             composable(NavScreen.ProfileScreen.route){
                 ProfileScreen(viewModel = authViewModel,{},
@@ -228,7 +231,8 @@ fun BicycleRentalMainScreen(){
 
                         navController.navigate(NavScreen.FinishParkingRentalScreen.route)
                     },
-                    context = context
+                    context = context,
+                    rentalViewModel = rentalViewModel
                 )
             }
             composable(NavScreen.FinishParkingRentalScreen.route){
@@ -236,7 +240,8 @@ fun BicycleRentalMainScreen(){
                     bitmap = capturedBitmap,
                     onConfirm = {
                         navController.navigate(NavScreen.ProblemQuestionScreen.route)
-                    }
+                    },
+                    rentalViewModel = rentalViewModel
                 )
             }
             composable(NavScreen.ProblemQuestionScreen.route){
@@ -296,19 +301,18 @@ sealed class NavScreen(
     )
 
     object FinishRentalScreen: NavScreen("FinishRentalScreen")
-
     object FinishParkingRentalScreen: NavScreen("FinishParkingRentalScreen")
-
     object ProblemQuestionScreen: NavScreen("ProblemQuestionScreen")
-
     object ProblemScreen: NavScreen("ProblemScreen")
-
-    object RentalHistoryScreen: NavScreen("RentalHistoryScreen")
-
+    object RentalHistoryScreen: NavScreen(
+        "RentalHistoryScreen",
+        label = "Rental History",
+        showBottomBar = true
+    )
 
     companion object {
         fun getBottomDestinations(): List<NavScreen> {
-            return listOf(Home, MapScreen,ActiveRentalScreen, ProfileScreen)
+            return listOf(Home, MapScreen, RentalHistoryScreen, ProfileScreen)
         }
 
         fun fromRoute(route: String?): NavScreen? =

@@ -105,6 +105,13 @@ Storage
 
 ## Screenshots
 
+<p align="center">
+<img src="/preview/welcome-page.png" width="250"/>
+<img src="/preview/my-profile.png" width="250"/>
+<img src="/preview/map-page.png" width="250"/>
+<img src="/preview/station-details-page.png" width="250"/>
+</p>
+
 ## How to Run
 
 1. Clone the repository

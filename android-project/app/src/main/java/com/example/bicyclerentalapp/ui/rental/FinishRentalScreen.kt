@@ -2,32 +2,22 @@ package com.example.bicyclerentalapp.ui.rental
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.camera.core.ImageCapture
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.example.bicyclerentalapp.ui.components.AppButton
 import com.example.bicyclerentalapp.ui.components.wrapper.CardsWrapper
 import com.example.bicyclerentalapp.ui.components.wrapper.ScreenWrapper
+import com.example.bicyclerentalapp.ui.rental.components.BottomInfoCard
 import com.example.bicyclerentalapp.ui.rental.components.CameraPreview
 import com.example.bicyclerentalapp.ui.rental.components.takePhoto
 
@@ -36,11 +26,15 @@ fun FinishRentalScreen(
     controller: LifecycleCameraController,
     //onFinishClick: () -> Unit = {},
     onFinishClick: (Bitmap) -> Unit = {},
-    context: Context
+    context: Context,
+    rentalViewModel: RentalViewModel
 ) {
+
+    val station by rentalViewModel.selectedStation.collectAsState()
+    val bike by rentalViewModel.selectedBike.collectAsState()
+
     ScreenWrapper(title = "Finish Rental") {
         CardsWrapper(onClick = {}, buttonText = "Finish", buttonClick = {
-                // Pozivamo tvoju funkciju za slikanje
 
         }, buttonActive = true,
             topContent = {
@@ -68,35 +62,7 @@ fun FinishRentalScreen(
                 },text="Take a photo")
             },
             bottomContent = {
-                Text(
-                    text = "#B214",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "123", color = Color.Gray, fontSize = 16.sp)
-                    Text(text = " • ", color = Color.Gray)
-                    Text(text = "412", color = Color.Cyan, fontWeight = FontWeight.Bold)
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = Color.Gray,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = "location",
-                        color = Color.Gray,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                }
+                BottomInfoCard(bike?.isElectro == true, station)
             }
         )
     }
