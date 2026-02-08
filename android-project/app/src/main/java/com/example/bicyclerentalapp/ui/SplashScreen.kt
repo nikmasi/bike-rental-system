@@ -32,16 +32,13 @@ fun SplashScreen(
     onNavigateToHome: () -> Unit ={},
     onNavigateToWelcome: () -> Unit ={}
 ) {
-    val state by viewModel.uiState.collectAsState()
     val loginResult by viewModel.logInResult.collectAsState()
-
-    // Flag koji sprečava preranu navigaciju dok se baza ne očita
     var isChecking by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(2000) // Splash delay
+        delay(2000) // splash delay
         viewModel.processIntent(UserIntent.LoadCurrentUser)
-        delay(500) // Malo vremena da se flow obradi
+        delay(500)
         isChecking = false
     }
 

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -210,10 +211,17 @@ fun BicycleRentalMainScreen(){
                 val stationId = backStackEntry.arguments?.getInt("stationId") ?: 0
                 val isElectro = backStackEntry.arguments?.getBoolean("isElectro") ?: false
 
+                val user by authViewModel.logInResult.collectAsState()
+
                 RentABikeScreen(stationId, isElectro, onQrCodeScanned = { result ->
-                    Toast.makeText(context, "Code: $result", Toast.LENGTH_SHORT).show()
-                    rentalViewModel.confirmRental(stationId,isElectro,result)
-                    navController.navigate(NavScreen.ActiveRentalScreen.route)
+                    user?.idUser?.let { userId ->
+                        Toast.makeText(context, "Code: $result", Toast.LENGTH_SHORT).show()
+                        rentalViewModel.confirmRental(stationId, isElectro, result, userId)
+                        navController.navigate(NavScreen.ActiveRentalScreen.route)
+                    } ?: run {
+                        Toast.makeText(context, "User not logged in!", Toast.LENGTH_SHORT).show()
+                    }
+
                 }, rentalViewModel = rentalViewModel)
             }
             composable(NavScreen.ActiveRentalScreen.route){
@@ -239,6 +247,12 @@ fun BicycleRentalMainScreen(){
                 FinishParkingRentalScreen(
                     bitmap = capturedBitmap,
                     onConfirm = {
+                        val stationId = rentalViewModel.selectedStation.value?.idStation ?: 0
+
+                        rentalViewModel.completeRental(
+                            endStationId = stationId
+                        )
+
                         navController.navigate(NavScreen.ProblemQuestionScreen.route)
                     },
                     rentalViewModel = rentalViewModel
@@ -250,11 +264,27 @@ fun BicycleRentalMainScreen(){
                     onDeny = { navController.navigate(NavScreen.Home.route)}
                 )
             }
-            composable(NavScreen.ProblemScreen.route){
-                ProblemScreen()
+            composable(NavScreen.ProblemScreen.route) {
+                val rental by rentalViewModel.activeRental.collectAsState()
+                ProblemScreen(
+                    rentalViewModel = rentalViewModel,
+                    context = context,
+                    controller = controller,
+                    onFinishClick = { description ->
+
+                        rentalViewModel.submitReport(rental?.idRental ?: 0,description)
+                        navController.navigate(NavScreen.Home.route) {
+                            popUpTo(NavScreen.Home.route) { inclusive = true }
+                        }
+                    }
+                )
             }
             composable(NavScreen.RentalHistoryScreen.route){
-                RentalHistoryScreen({})
+                val user by authViewModel.logInResult.collectAsState()
+                rentalViewModel.allRentalsWithReports(user?.idUser ?: 0)
+                RentalHistoryScreen({
+
+                },rentalViewModel = rentalViewModel)
             }
         }
     }

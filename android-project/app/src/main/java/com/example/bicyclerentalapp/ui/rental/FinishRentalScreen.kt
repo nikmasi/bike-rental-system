@@ -20,6 +20,8 @@ import com.example.bicyclerentalapp.ui.components.wrapper.ScreenWrapper
 import com.example.bicyclerentalapp.ui.rental.components.BottomInfoCard
 import com.example.bicyclerentalapp.ui.rental.components.CameraPreview
 import com.example.bicyclerentalapp.ui.rental.components.takePhoto
+import java.io.File
+import java.io.IOException
 
 @Composable
 fun FinishRentalScreen(
@@ -57,13 +59,32 @@ fun FinishRentalScreen(
                         context = context,
                         onPhotoTaken = { bitmap ->
                             onFinishClick(bitmap)
+
+                            val path = saveBitmapToInternalStorage(context, bitmap,"rental")
+                            rentalViewModel.setPhotoPath(path)
                         }
                     )
-                },text="Take a photo")
+
+                }, text= "Take a photo")
             },
             bottomContent = {
                 BottomInfoCard(bike?.isElectro == true, station)
             }
         )
+    }
+}
+
+fun saveBitmapToInternalStorage(context: Context, bitmap: Bitmap, name:String): String? {
+    val fileName = "${name}_${System.currentTimeMillis()}.jpg"
+    return try {
+        context.openFileOutput(fileName, Context.MODE_PRIVATE).use { stream ->
+            if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)) {
+                throw IOException("Couldn't save.")
+            }
+        }
+        File(context.filesDir, fileName).absolutePath
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
     }
 }

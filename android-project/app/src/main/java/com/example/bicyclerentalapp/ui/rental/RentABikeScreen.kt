@@ -10,6 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -31,6 +34,9 @@ fun RentABikeScreen(
 ) {
     val station by rentalViewModel.selectedStation.collectAsState()
 
+    // flag because camera not turn off in that moment when qr scan
+    var isScanned by remember { mutableStateOf(false) }
+
     ScreenWrapper(title = "Rent a Bike") {
         CardsWrapper(
             onClick = onScanClick,
@@ -43,7 +49,10 @@ fun RentABikeScreen(
                             .clip(RoundedCornerShape(16.dp))
                     ) {
                         QrCodeScannerScreen { result ->
-                            onQrCodeScanned(result)
+                            if (!isScanned) {
+                                isScanned = true
+                                onQrCodeScanned(result)
+                            }
                         }
                     }
 

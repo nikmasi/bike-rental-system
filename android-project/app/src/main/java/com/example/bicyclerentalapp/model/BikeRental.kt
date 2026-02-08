@@ -7,10 +7,14 @@ import androidx.room.PrimaryKey
 @Entity
 @Immutable
 data class BikeRental(
-    @PrimaryKey val idRental: Int,
-    val pocetak: String,
-    val zavrsetak: String,
-    val cena: Double,
-    //val bike: Bike,
-//    val user: User
+    @PrimaryKey(autoGenerate = true) val idRental: Int = 0,
+    val userId: Int,
+    val bikeId: Int,
+    val startStationId: Int,
+    val endStationId: Int? = null,
+    val startTime: Long,
+    val endTime: Long? = null,
+    val totalDurationMinutes: Int? = null,
+    val totalPrice: Double? = null,
+    val bikePhotoAfterPath: String? = null
 )
