@@ -36,6 +36,7 @@ fun BikeDetailCard(
     station: Station,
     typeLabel: String,
     onClose: () -> Unit,
+    distanceToParking: String,
     onRent: (Station, Boolean) -> Unit,
     buttonCond: Boolean = true
 ) {
@@ -114,7 +115,7 @@ fun BikeDetailCard(
                         val count = if (typeLabel=="ELECTRO") station.electroBikesCount else station.classicBikesCount
                         Text(text = "$count available", color = Color.Gray,style = MaterialTheme.typography.titleSmall)
 
-                        Text(text = "1000m away", color= Color.White, style = MaterialTheme.typography.titleSmall)
+                        Text(text = "${distanceToParking} away", color= Color.White, style = MaterialTheme.typography.titleSmall)
                     }
 
                 }

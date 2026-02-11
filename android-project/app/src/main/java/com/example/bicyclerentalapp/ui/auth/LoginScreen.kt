@@ -63,7 +63,14 @@ fun LoginScreen(
 
         // Login Button
         AppButton(
-            onClick = { onLoginClick(username, password) },
+            onClick = {
+                viewModel.processIntent(
+                    UserIntent.Login(
+                        username = username,
+                        password = password
+                    )
+                )
+                onLoginClick(username, password) },
             text = "Login",
         )
     }

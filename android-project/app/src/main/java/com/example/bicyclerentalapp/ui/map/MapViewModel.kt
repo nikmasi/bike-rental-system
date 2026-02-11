@@ -17,9 +17,11 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val intents = MutableSharedFlow<StationIntent>(replay = 1)
+    private val intentsParking = MutableSharedFlow<ParkingZoneIntent>(replay = 1)
 
     init {
         processIntent(StationIntent.LoadAllStations)
+        processIntentParking(ParkingZoneIntent.LoadAllParkingZones)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,9 +37,28 @@ class MapViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiStateParking = intentsParking.flatMapLatest { intent ->
+        when (intent) {
+            is ParkingZoneIntent.LoadAllParkingZones -> {
+                mapRepository.allParkingZones()
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
     fun processIntent(intent: StationIntent) {
         viewModelScope.launch {
             intents.emit(intent)
+        }
+    }
+
+    fun processIntentParking(intent: ParkingZoneIntent) {
+        viewModelScope.launch {
+            intentsParking.emit(intent)
         }
     }
 
@@ -50,4 +71,8 @@ class MapViewModel @Inject constructor(
 
 sealed class StationIntent {
     object LoadAllStations: StationIntent()
+}
+
+sealed class ParkingZoneIntent {
+    object LoadAllParkingZones: ParkingZoneIntent()
 }

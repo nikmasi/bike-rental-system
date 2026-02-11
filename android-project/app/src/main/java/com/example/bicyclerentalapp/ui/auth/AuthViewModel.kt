@@ -115,6 +115,14 @@ class AuthViewModel @Inject constructor(
                         _errorState.value = null
                     }
             }
+            is UserIntent.Logout -> {
+                // reset
+                _logInResult.value = null
+                _signUpResult.value = null
+                _errorState.value = null
+
+                kotlinx.coroutines.flow.flowOf(null)
+            }
             else -> authRepository.currentUser()
 
             //UserIntent.LoadCurrentUser -> authRepository.currentUser()
@@ -143,6 +151,8 @@ sealed class UserIntent {
     ): UserIntent()
     object LoadCurrentUser: UserIntent()
     data class EditProfile(val user: User): UserIntent()
+
+    object Logout : UserIntent()
 }
 
 sealed class AuthError {

@@ -1,5 +1,6 @@
 package com.example.bicyclerentalapp.ui.auth
 
+import android.util.Log
 import androidx.annotation.WorkerThread
 import com.example.bicyclerentalapp.model.User
 import com.example.bicyclerentalapp.persistence.UserDao

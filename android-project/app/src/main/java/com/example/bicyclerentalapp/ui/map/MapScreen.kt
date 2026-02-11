@@ -49,6 +49,7 @@ fun MapScreen(
     rentalViewModel: RentalViewModel
 ) {
     val stations by viewModel.uiState.collectAsState()
+    val parkingZones by viewModel.uiStateParking.collectAsState()
 
     var mapReference by remember { mutableStateOf<MapView?>(null) }
     var searchText by remember { mutableStateOf("") }
@@ -67,6 +68,21 @@ fun MapScreen(
         DefaultLocationClient(context,
             LocationServices.getFusedLocationProviderClient(context)
         )
+    }
+
+    val minDistanceToParking = remember(selectedStation, parkingZones) {
+        if (selectedStation != null && parkingZones.isNotEmpty()) {
+            parkingZones.map { zone ->
+                viewModel.calculateDistance(
+                    selectedStation!!.latitude,
+                    selectedStation!!.longitude,
+                    zone.latitude,
+                    zone.longitude
+                )
+            }.minOrNull()
+        } else {
+            null
+        }
     }
 
     LaunchedEffect(stations, mapReference) {
@@ -118,6 +134,33 @@ fun MapScreen(
             }
             map.invalidate()
         }
+    }
+
+    LaunchedEffect(parkingZones, parkingChecked, mapReference) {
+        val map = mapReference ?: return@LaunchedEffect
+
+        map.overlays.removeAll { it is org.osmdroid.views.overlay.Polygon }
+
+        if (parkingChecked && parkingZones.isNotEmpty()) {
+            parkingZones.forEach { zone ->
+                val circle = org.osmdroid.views.overlay.Polygon(map)
+
+                val circlePoints = org.osmdroid.views.overlay.Polygon.pointsAsCircle(
+                    GeoPoint(zone.latitude, zone.longitude),
+                    40.0
+                )
+
+                circle.points = circlePoints
+                circle.fillPaint.color = android.graphics.Color.argb(50, 0, 150, 255)
+                circle.outlinePaint.color = android.graphics.Color.rgb(0, 100, 255)
+                circle.outlinePaint.strokeWidth = 2f
+
+                circle.title = "Parking: ${zone.name}"
+
+                map.overlays.add(circle)
+            }
+        }
+        map.invalidate()
     }
 
     Column(
@@ -196,6 +239,7 @@ fun MapScreen(
                 modifier = Modifier.weight(0.7f),
                 station = selectedStation!!,
                 typeLabel = if (isElectroSelected) "ELECTRO" else "CLASSIC",
+                distanceToParking = minDistanceToParking?.let { "${it.toInt()}m" } ?: "N/A",
                 onClose = { selectedStation = null },
                 onRent = { station, isElectro ->
                     rentalViewModel.setRentalData(station)
@@ -207,7 +251,7 @@ fun MapScreen(
 }
 
 // init map and markers
-private fun setupMap(map: MapView, onMarkerClick: (String) -> Unit) {
+fun setupMap(map: MapView, onMarkerClick: (String) -> Unit) {
     val startPoint = GeoPoint(45.2396, 19.8227)
     map.controller.setCenter(startPoint)
     map.controller.setZoom(15.0)

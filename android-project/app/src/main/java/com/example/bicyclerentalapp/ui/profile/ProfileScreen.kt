@@ -57,7 +57,10 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         // logout button
-        AppButton(onLogout, "Logout", height = 40.dp)
+        AppButton(onClick = {
+            viewModel.processIntent(UserIntent.Logout)
+            onLogout()
+        }, "Logout", height = 40.dp)
         // change password button
         AppButton(onChangePassword, "Change password", height = 40.dp)
         // edit profile

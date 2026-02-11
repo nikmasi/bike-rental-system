@@ -1,6 +1,7 @@
 package com.example.bicyclerentalapp.ui.main
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.widget.Toast
@@ -45,6 +46,7 @@ import androidx.navigation.navArgument
 import com.example.bicyclerentalapp.ui.components.SystemBarsColor
 import com.example.bicyclerentalapp.ui.home.HomeScreen
 import com.example.bicyclerentalapp.ui.map.MapViewModel
+import com.example.bicyclerentalapp.ui.map.LocationRequiredScreen
 import com.example.bicyclerentalapp.ui.rental.RentABikeScreen
 import com.example.bicyclerentalapp.ui.profile.ChangePasswordScreen
 import com.example.bicyclerentalapp.ui.profile.EditProfileScreen
@@ -120,6 +122,7 @@ fun BicycleRentalMainScreen(){
     }
 
     var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var gpsEnabled by remember { mutableStateOf(isLocationEnabled(context)) }
 
     SystemBarsColor(Color.Black, darkTheme = true)
 
@@ -176,7 +179,11 @@ fun BicycleRentalMainScreen(){
                 )
             }
             composable(NavScreen.ProfileScreen.route){
-                ProfileScreen(viewModel = authViewModel,{},
+                ProfileScreen(viewModel = authViewModel, onLogout = {
+                    navController.navigate(NavScreen.LoginScreen.route){
+                        popUpTo(NavScreen.ProfileScreen.route) { inclusive = true }
+                    }
+                },
                     {navController.navigate(NavScreen.ChangePasswordScreen.route)},
                     {navController.navigate(NavScreen.EditProfileScreen.route)},
                     {navController.navigate(NavScreen.RentalHistoryScreen.route)}
@@ -193,14 +200,20 @@ fun BicycleRentalMainScreen(){
                     onClick = {navController.navigate(NavScreen.ProfileScreen.route)})
             }
             composable(NavScreen.MapScreen.route){
+                if(gpsEnabled) {
+                    MapScreen(
+                        onRent = { station, isElectro ->
+                            navController.navigate("RentABikeScreen/${station.idStation}/$isElectro")
+                        },
+                        viewModel = mapViewModel,
+                        rentalViewModel = rentalViewModel
+                    )
+                }else {
+                    LocationRequiredScreen(onRetry = {
+                        gpsEnabled = isLocationEnabled(context)
+                    })
+                }
 
-                MapScreen(
-                    onRent = { station, isElectro ->
-                        navController.navigate("RentABikeScreen/${station.idStation}/$isElectro")
-                    },
-                    viewModel = mapViewModel,
-                    rentalViewModel = rentalViewModel
-                )
             }
             composable(NavScreen.RentABikeScreen.route,
                 arguments = listOf(
@@ -227,7 +240,8 @@ fun BicycleRentalMainScreen(){
             composable(NavScreen.ActiveRentalScreen.route){
                 ActiveRentalScreen(
                     onFinishClick = {navController.navigate(NavScreen.FinishRentalScreen.route)},
-                    rentalViewModel = rentalViewModel
+                    rentalViewModel = rentalViewModel,
+                    mapViewModel = mapViewModel
                 )
             }
             composable(NavScreen.FinishRentalScreen.route){
@@ -357,4 +371,10 @@ sealed class NavScreen(
                     ActiveRentalScreen
                 ).find { it.route == route }
     }
+}
+
+private fun isLocationEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+    return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ||
+            locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 }
