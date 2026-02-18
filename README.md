@@ -49,10 +49,16 @@ State & Data
 
 ## Screenshots
 <p align="center">
-<img src="/preview/login-kobweb.png" width="270"/>
-<img src="/preview/bikes-kobweb.png" width="270"/>
-<img src="/preview/add-bike-kobweb.png" width="270"/>
-<img src="/preview/rentals-kobweb.png" width="270"/>
+<img src="/preview/login-kobweb.png" width="400"/>
+<img src="/preview/change-password-kobweb.png" width="400"/>
+<img src="/preview/home-kobweb.png" width="400"/>
+<img src="/preview/bikes-kobweb.png" width="400"/>
+<img src="/preview/edit-status-kobweb.png" width="400"/>
+<img src="/preview/edit-bike-kobweb.png" width="400"/>
+<img src="/preview/add-bike-kobweb.png" width="400"/>
+<img src="/preview/rentals-kobweb.png" width="400"/>
+<img src="/preview/returns-kobweb.png" width="400"/>
+<img src="/preview/bike-problems-kobweb.png" width="400"/>
 </p>
 
 

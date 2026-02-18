@@ -11,11 +11,13 @@ import com.varabyte.kobweb.compose.ui.modifiers.color
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.margin
+import com.varabyte.kobweb.compose.ui.modifiers.size
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import kotlinx.browser.window
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import project.components.buttons.AppButton
@@ -86,7 +88,7 @@ fun AddBike() {
                             NewBikeResult.Success -> {
                                 resultMessage = "Bike successfully added! Redirecting..."
                                 messageColor = Color.green
-                                window.setTimeout({ window.location.href = "/bikes" }, 2000)
+                                window.setTimeout({ window.location.href = "/bikes" }, 3000)
                             }
                             NewBikeResult.EmptyLocation -> {
                                 resultMessage = "Location is required"
@@ -110,6 +112,10 @@ fun AddBike() {
                     Span(attrs = Modifier.color(messageColor).fontSize(14.px).margin(top = 10.px).toAttrs()) {
                         Text(it)
                     }
+                    Img(
+                        src = "qr_code.svg",
+                        attrs = Modifier.size(150.px).margin(top = 10.px).toAttrs()
+                    )
                 }
             }
         })
