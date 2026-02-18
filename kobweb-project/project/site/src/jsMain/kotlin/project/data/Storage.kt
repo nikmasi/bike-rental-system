@@ -26,8 +26,8 @@ object Storage {
         }
 
         if (bikes.isEmpty()) {
-            bikes.add(Bike(1, "Classic", "Block 45, New Belgrade", 100.00, "/bike1.webp"))
-            bikes.add(Bike(2, "Classic", "Block 70, New Belgrade", 100.00, "/bike2.webp"))
+            bikes.add(Bike(1, "Classic", "Block 45, New Belgrade", 100.00, "/bike1.webp", status = "Problem"))
+            bikes.add(Bike(2, "Classic", "Block 70, New Belgrade", 100.00, "/bike2.webp", status = "Problem"))
             bikes.add(Bike(3, "Electric", "Block 45, New Belgrade", 80.00, "bike3.webp"))
             bikes.add(Bike(4, "Electric", "Block 45, New Belgrade", 80.00, "bike3.webp"))
             bikes.add(Bike(5, "Electric", "Block 45, New Belgrade", 80.00, "bike4.webp"))
@@ -36,8 +36,9 @@ object Storage {
             saveBikes(bikes)
         }
         if (rentals.isEmpty()){
-            rentals.add(Rental(1, "2026-01-18T10:00:00Z", "2026-01-18T12:00:00Z", 400.00, bikes[0], users[0]))
+            rentals.add(Rental(1, "2026-01-18T10:00:00Z", "2026-01-18T12:00:00Z", 400.00, bikes[2], users[0]))
             rentals.add(Rental(2, "2026-01-11T10:00:00Z", "2026-01-11T12:00:00Z", 300.00, bikes[1], users[1]))
+            rentals.add(Rental(3, "2026-01-19T10:00:00Z", "2026-01-19T12:00:00Z", 300.00, bikes[0], users[1]))
             saveRentals(rentals)
         }
         if (returns.isEmpty()){
@@ -131,6 +132,33 @@ object Storage {
     private fun saveBikes(bikes: List<Bike>) {
         val json = Json.encodeToString(bikes)
         window.localStorage.setItem("bikes", json)
+    }
+
+    fun updateBikeStatusAfterReturn(returnId: Int, status: String): Boolean {
+        val bikeReturnIndex = returns.indexOfFirst { it.id == returnId }
+        if (bikeReturnIndex == -1) return false
+
+        val bikeReturn = returns.find { it.id == returnId } ?: return false
+        val rental = rentals.find { it.id == bikeReturn.rentalId }
+            ?: return false
+        val bikeIndex = bikes.indexOfFirst { it.id == rental.bike.id }
+        if (bikeIndex == -1) return false
+
+//        val newStatus = if (bikeReturn.hasIssue) {
+//            status
+//        } else {
+//            "Available"
+//        }
+        val newStatus = status
+
+        val updatedBike = bikes[bikeIndex].copy(status = newStatus)
+        bikes[bikeIndex] = updatedBike
+        saveBikes(bikes)
+
+        returns.removeAt(bikeReturnIndex)
+        saveReturns(returns)
+
+        return true
     }
 
     private fun saveRentals(rentals: List<Rental>) {

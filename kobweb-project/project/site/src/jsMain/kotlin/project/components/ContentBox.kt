@@ -68,7 +68,7 @@ fun ContentBox(
                     .color(Color.white)
                     .toAttrs {
                         onClick {
-                            window.localStorage.clear()
+                            //window.localStorage.clear()
                             window.location.href = "/login"
                         }
                     }
@@ -84,7 +84,6 @@ fun ContentBox(
                     .cursor(Cursor.Pointer)
                     .attrsModifier {
                         onClick {
-                            window.alert("Radi!")
                             window.location.href = "/change-password"
                         }
                     },

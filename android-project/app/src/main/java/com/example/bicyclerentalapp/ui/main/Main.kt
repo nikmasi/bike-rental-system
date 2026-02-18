@@ -162,13 +162,15 @@ fun BicycleRentalMainScreen(){
             composable(NavScreen.LoginScreen.route){
                 LoginScreen(
                     onLogIn = {navController.navigate(NavScreen.Home.route)},
-                    viewModel = authViewModel
+                    viewModel = authViewModel,
+                    onSignUp = {navController.navigate(NavScreen.SignUp.route)}
                 )
             }
             composable(NavScreen.SignUp.route){
                 SignUpScreen(
                     viewModel = authViewModel,
-                    onSignUp = {navController.navigate(NavScreen.Home.route)}
+                    onSignUp = {navController.navigate(NavScreen.Home.route)},
+                    onLogIn = {navController.navigate(NavScreen.LoginScreen.route)}
                 )
             }
             composable(NavScreen.Home.route){

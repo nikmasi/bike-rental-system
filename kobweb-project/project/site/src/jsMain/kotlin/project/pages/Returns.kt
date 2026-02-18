@@ -23,6 +23,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import kotlinx.browser.window
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.rgb
@@ -39,6 +40,7 @@ import project.components.table.HeaderTable
 import project.components.table.RowTable
 import project.components.table.TableColumn
 import project.data.*
+import kotlin.js.Date
 
 @Page
 @Composable
@@ -73,9 +75,18 @@ fun Returns() {
                         }
 
                         // time
+//                        Column(modifier = Modifier.width(180.px)) {
+//                            Span(attrs = Modifier.color(Color.white).fontSize(14.px).toAttrs()) {
+//                                Text(ret.returnedAt.toString())
+//                            }
+//                        }
+
                         Column(modifier = Modifier.width(180.px)) {
                             Span(attrs = Modifier.color(Color.white).fontSize(14.px).toAttrs()) {
-                                Text(ret.returnedAt.toString())
+
+                                val date = Date(ret.returnedAt.toDouble())
+                                Text(date.toLocaleString("hr-HR"))
+
                             }
                         }
 
@@ -121,8 +132,12 @@ fun Returns() {
                         }
 
                         // action button
-                        ActionButton("fa-bug", if (ret.hasIssue) rgb(239, 68, 68) else Color.gray) {
-                        }
+                        ActionButton("fa-bug", if (ret.hasIssue) rgb(239, 68, 68) else Color.gray,
+
+                            onClick = {
+                                if (ret.hasIssue){
+                                    window.location.href = "/bike-problems" }
+                                })
                     }
                 }
             }

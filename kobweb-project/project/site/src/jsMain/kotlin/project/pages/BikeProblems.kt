@@ -25,6 +25,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.styleModifier
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import kotlinx.browser.window
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.letterSpacing
@@ -45,6 +46,7 @@ import project.components.buttons.AppButton
 import project.components.table.RowTable
 import project.data.models.BikeReturn
 import project.data.*
+import kotlin.js.Date
 
 @Page
 @Composable
@@ -84,7 +86,11 @@ fun BikeProblems() {
                         if (selectedProblem == null) {
                             EmptyState("Select a report from the list to view details")
                         } else {
-                            ProblemDetailsContent(selectedProblem!!)
+                            ProblemDetailsContent(selectedProblem!!,onActionCompleted = {
+                                problems = Storage.getAllProblems()
+                                selectedProblem = null
+                            })
+
                         }
                     }
                 }
@@ -109,12 +115,13 @@ private fun IssueListRow(problem: BikeReturn, isSelected: Boolean, onClick: () -
 }
 
 @Composable
-private fun ProblemDetailsContent(p: BikeReturn) {
+private fun ProblemDetailsContent(p: BikeReturn, onActionCompleted: () -> Unit) {
     TextTitle("Problem Details")
 
     Row(modifier = Modifier.fillMaxWidth().margin(top = 25.px), horizontalArrangement = Arrangement.spacedBy(40.px)) {
         ColumnItem("#ID", "#${p.id}", rgb(239, 68, 68))
-        ColumnItem("Date Reported", "${p.returnedAt}", Color.white)
+        val date = Date(p.returnedAt.toDouble())
+        ColumnItem("Date Reported", date.toLocaleString("hr-HR"), Color.white)
         ColumnItem("Rental ID", "#${p.rentalId}", Color.white)
     }
 
@@ -135,8 +142,18 @@ private fun ProblemDetailsContent(p: BikeReturn) {
     }
 
     Row(modifier = Modifier.margin(top = 40.px), horizontalArrangement = Arrangement.spacedBy(15.px)) {
-        AppButton({},"Start Maintenance")
-        AppButton({},"Deactivate Bike")
+        AppButton({
+            val r= Storage.updateBikeStatusAfterReturn(p.id,"Maintenance")
+            onActionCompleted()
+        },"Start Maintenance")
+        AppButton({
+            val r2=Storage.updateBikeStatusAfterReturn(p.id,"Deactivate")
+            onActionCompleted()
+        },"Deactivate Bike")
+        AppButton({
+            val r=Storage.updateBikeStatusAfterReturn(p.id,"Temporarily deactivate")
+            onActionCompleted()
+        },"Temporarily deactivate")
     }
 }
 

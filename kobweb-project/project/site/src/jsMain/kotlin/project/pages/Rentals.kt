@@ -47,7 +47,8 @@ fun Rentals() {
         TableColumn("ID", 50.px),
         TableColumn("User", 120.px),
         TableColumn("Bike", 100.px),
-        TableColumn("Time Period", 180.px),
+        TableColumn("Time Period", 140.px),
+        TableColumn("Price", 140.px),
         TableColumn("Action", 50.px),
     )
 
@@ -95,6 +96,14 @@ fun Rentals() {
                                 Span(attrs = Modifier.color(rgba(255,255,255,0.7)).fontSize(13.px).toAttrs()) {
                                     Text(rental.end)
                                 }
+                            }
+                        }
+
+                        Column(modifier = Modifier.width(140.px)) {
+                            Span(
+                                attrs = Modifier.color(Color.gray).fontSize(11.px).toAttrs()
+                            ) {
+                                Text(rental.price.toString())
                             }
                         }
 

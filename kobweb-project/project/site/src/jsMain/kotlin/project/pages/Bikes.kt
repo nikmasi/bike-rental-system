@@ -45,6 +45,7 @@ fun Bikes() {
         TableColumn("ID", 60.px),
         TableColumn("Photo", 60.px),
         TableColumn("Type & Status", 140.px),
+        TableColumn("Location", 140.px),
         TableColumn("Actions", 140.px)
     )
 
@@ -80,6 +81,14 @@ fun Bikes() {
                             }
                             Span(attrs = Modifier.color(if (bike.status == "Available") Color.green else Color.orange).fontSize(12.px).toAttrs()) {
                                 Text(bike.status)
+                            }
+                        }
+
+                        Column(modifier = Modifier.width(140.px)) {
+                            Span(
+                                attrs = Modifier.color(Color.gray).fontSize(11.px).toAttrs()
+                            ) {
+                                Text(bike.location)
                             }
                         }
 

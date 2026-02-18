@@ -1,15 +1,19 @@
 package com.example.bicyclerentalapp.ui.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.bicyclerentalapp.ui.theme.BicycleRentalAppTheme
@@ -22,7 +26,8 @@ import com.example.bicyclerentalapp.ui.theme.BackgroundBlack
 fun SignUpScreen(
     onLoginClick: (username: String, password: String) -> Unit = { _, _ -> },
     viewModel: AuthViewModel,
-    onSignUp: () -> Unit
+    onSignUp: () -> Unit,
+    onLogIn: () -> Unit
 ) {
     val signUpResult by viewModel.signUpResult.collectAsState()
 
@@ -74,7 +79,7 @@ fun SignUpScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
             Title(text = "SignUp")
 
@@ -133,6 +138,17 @@ fun SignUpScreen(
                     )
                 },
                 text = "SignUp",
+            )
+
+            Text(
+                text = "Have an account? Log in",
+                color = Color.White,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .clickable {
+                        onLogIn()
+                    }
             )
         }
     }

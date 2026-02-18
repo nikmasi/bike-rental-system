@@ -1,13 +1,17 @@
 package com.example.bicyclerentalapp.ui.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.bicyclerentalapp.ui.theme.BicycleRentalAppTheme
@@ -20,7 +24,8 @@ import com.example.bicyclerentalapp.ui.theme.BackgroundBlack
 fun LoginScreen(
     onLogIn: () ->Unit,
     viewModel: AuthViewModel,
-    onLoginClick: (username: String, password: String) -> Unit = { _, _ -> }
+    onLoginClick: (username: String, password: String) -> Unit = { _, _ -> },
+    onSignUp: () -> Unit
 ) {
     val logInResult by viewModel.logInResult.collectAsState()
 
@@ -72,6 +77,17 @@ fun LoginScreen(
                 )
                 onLoginClick(username, password) },
             text = "Login",
+        )
+
+        Text(
+            text = "Don't have an account? Sign up",
+            color = Color.White,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .clickable {
+                    onSignUp()
+                }
         )
     }
 }
