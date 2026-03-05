@@ -122,7 +122,7 @@ Storage
 <img src="/preview/scan_qr_code_page.jpg" width="250"/>
 <img src="/preview/active_rental_page.jpg" width="250"/>
 <img src="/preview/finish_rental_page.jpg" width="250"/>
-<img src="/preview/no-rental.jpg.jpg" width="250"/>
+<img src="/preview/no-rental.jpg" width="250"/>
 <img src="/preview/problem_page.jpg" width="250"/>
 <img src="/preview/problem.jpg" width="250"/>
 <img src="/preview/rental_history_page.jpg" width="250"/>
